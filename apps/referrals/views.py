@@ -1,6 +1,7 @@
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 
@@ -102,6 +103,28 @@ class ReferralViewSet(BaseModelViewSet):
         serializer.is_valid(raise_exception=True)
         referral = ReferralService.route(referral=referral, actor=request.user, **serializer.validated_data)
         return Response(ReferralDetailSerializer(referral).data)
+
+    @action(detail=True, methods=["post"], url_path="send-external")
+    def send_external(self, request, pk=None):
+        """
+        Hands the referral to a hospital outside this system entirely,
+        rather than to one of our own specialists - the network integration
+        path described in `apps.integrations`, distinct from internal
+        routing above.
+        """
+        referral = self.get_object()
+        if request.user.role not in COORDINATION_ROLES and not request.user.is_superuser:
+            raise ReferralPermissionError("Only a referral coordinator or administrator may send a referral externally.")
+
+        external_hospital_code = request.data.get("external_hospital_code")
+        if not external_hospital_code:
+            raise ValidationError({"external_hospital_code": "This field is required."})
+
+        from apps.integrations.serializers import OutboundReferralRequestSerializer
+        from apps.integrations.services import initiate_outbound_referral
+
+        outbound_request = initiate_outbound_referral(referral=referral, external_hospital_code=external_hospital_code)
+        return Response(OutboundReferralRequestSerializer(outbound_request).data, status=201)
 
     @action(detail=True, methods=["post"])
     def accept(self, request, pk=None):
