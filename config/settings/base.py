@@ -125,9 +125,6 @@ REST_FRAMEWORK = {
     ),
     "EXCEPTION_HANDLER": "apps.common.exceptions.custom_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
-    "ALLOWED_VERSIONS": ("v1",),
-    "DEFAULT_VERSION": "v1",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
