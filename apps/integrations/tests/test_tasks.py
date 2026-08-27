@@ -34,13 +34,13 @@ class TestSendReferralToExternalHospital:
         assert outbound_request.status == OutboundReferralRequest.Status.ACKNOWLEDGED
         assert outbound_request.external_reference == "EXT-STUB-1"
         assert outbound_request.attempt_count == 1
-        assert IntegrationLog.objects.filter(direction=IntegrationLog.Direction.OUTBOUND, level=IntegrationLog.Level.INFO).exists()
+        assert IntegrationLog.objects.filter(
+            direction=IntegrationLog.Direction.OUTBOUND, level=IntegrationLog.Level.INFO
+        ).exists()
 
     @override_settings(EXTERNAL_HOSPITAL_MAX_RETRIES=1)
     def test_exhausting_retries_marks_request_failed(self, referral, monkeypatch):
-        monkeypatch.setattr(
-            "apps.integrations.tasks.get_hospital_integration_adapter", lambda: _AlwaysFailsAdapter()
-        )
+        monkeypatch.setattr("apps.integrations.tasks.get_hospital_integration_adapter", lambda: _AlwaysFailsAdapter())
         outbound_request = OutboundReferralRequest.objects.create(
             referral=referral, external_hospital_code="EXT-01", payload={"reference_code": referral.reference_code}
         )
@@ -50,7 +50,9 @@ class TestSendReferralToExternalHospital:
         outbound_request.refresh_from_db()
         assert outbound_request.status == OutboundReferralRequest.Status.FAILED
         assert outbound_request.attempt_count == 1
-        assert IntegrationLog.objects.filter(direction=IntegrationLog.Direction.OUTBOUND, level=IntegrationLog.Level.ERROR).exists()
+        assert IntegrationLog.objects.filter(
+            direction=IntegrationLog.Direction.OUTBOUND, level=IntegrationLog.Level.ERROR
+        ).exists()
 
     def test_missing_outbound_request_is_a_no_op(self):
         send_referral_to_external_hospital(999999)

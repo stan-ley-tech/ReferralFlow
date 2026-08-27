@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from apps.referrals.models import Referral
 from apps.referrals.state_machine import ReferralStatus
-from tests.factories import DoctorFactory, PatientFactory, ReferralFactory
+from tests.factories import DoctorFactory, ReferralFactory
 
 pytestmark = pytest.mark.django_db
 

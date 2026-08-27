@@ -33,7 +33,12 @@ class ReferralStatus:
 ALLOWED_TRANSITIONS = {
     ReferralStatus.DRAFT: {ReferralStatus.SUBMITTED, ReferralStatus.CANCELLED},
     ReferralStatus.SUBMITTED: {ReferralStatus.ROUTED, ReferralStatus.CANCELLED},
-    ReferralStatus.ROUTED: {ReferralStatus.ACCEPTED, ReferralStatus.REJECTED, ReferralStatus.CANCELLED, ReferralStatus.EXPIRED},
+    ReferralStatus.ROUTED: {
+        ReferralStatus.ACCEPTED,
+        ReferralStatus.REJECTED,
+        ReferralStatus.CANCELLED,
+        ReferralStatus.EXPIRED,
+    },
     ReferralStatus.ACCEPTED: {ReferralStatus.SCHEDULED, ReferralStatus.CANCELLED},
     ReferralStatus.REJECTED: {ReferralStatus.ROUTED, ReferralStatus.CANCELLED},
     ReferralStatus.SCHEDULED: {ReferralStatus.IN_PROGRESS, ReferralStatus.CANCELLED},

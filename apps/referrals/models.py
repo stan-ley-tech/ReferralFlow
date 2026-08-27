@@ -34,7 +34,9 @@ class Referral(TimeStampedModel, SoftDeleteModel):
     )
 
     priority = models.CharField(max_length=10, choices=Priority.choices, default=Priority.ROUTINE)
-    status = models.CharField(max_length=20, choices=ReferralStatus.CHOICES, default=ReferralStatus.DRAFT, db_index=True)
+    status = models.CharField(
+        max_length=20, choices=ReferralStatus.CHOICES, default=ReferralStatus.DRAFT, db_index=True
+    )
 
     reason_for_referral = models.TextField()
     clinical_summary = models.TextField(blank=True)
@@ -49,9 +51,7 @@ class Referral(TimeStampedModel, SoftDeleteModel):
     completed_at = models.DateTimeField(null=True, blank=True)
     cancelled_at = models.DateTimeField(null=True, blank=True)
 
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="referrals_created"
-    )
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="referrals_created")
 
     class Meta:
         ordering = ["-created_at"]
@@ -86,7 +86,9 @@ class ReferralAssignment(TimeStampedModel):
         REJECTED = "REJECTED", "Rejected"
 
     referral = models.ForeignKey(Referral, on_delete=models.CASCADE, related_name="assignments")
-    specialist = models.ForeignKey("hospitals.Specialist", on_delete=models.PROTECT, related_name="referral_assignments")
+    specialist = models.ForeignKey(
+        "hospitals.Specialist", on_delete=models.PROTECT, related_name="referral_assignments"
+    )
     status = models.CharField(max_length=10, choices=AssignmentStatus.choices, default=AssignmentStatus.PENDING)
     assigned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+")
     decision_at = models.DateTimeField(null=True, blank=True)
@@ -156,7 +158,9 @@ class Document(TimeStampedModel):
         OTHER = "OTHER", "Other"
 
     referral = models.ForeignKey(Referral, on_delete=models.CASCADE, related_name="documents")
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="uploaded_documents")
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="uploaded_documents"
+    )
     file = models.FileField(upload_to=referral_document_upload_path)
     document_type = models.CharField(max_length=20, choices=DocumentType.choices, default=DocumentType.OTHER)
     original_filename = models.CharField(max_length=255, blank=True)

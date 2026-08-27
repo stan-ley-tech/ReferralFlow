@@ -9,6 +9,4 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ("username", "email", "role", "is_active", "is_staff", "date_joined")
     list_filter = ("role", "is_active", "is_staff")
     search_fields = ("username", "email", "first_name", "last_name")
-    fieldsets = DjangoUserAdmin.fieldsets + (
-        ("Referral role", {"fields": ("role", "phone_number")}),
-    )
+    fieldsets = DjangoUserAdmin.fieldsets + (("Referral role", {"fields": ("role", "phone_number")}),)

@@ -47,9 +47,7 @@ def generate_daily_referral_report():
     wasteful for a number that only changes once a day."""
     since = timezone.now() - timezone.timedelta(days=1)
 
-    by_status = dict(
-        Referral.objects.filter(created_at__gte=since).values_list("status").annotate(count=Count("id"))
-    )
+    by_status = dict(Referral.objects.filter(created_at__gte=since).values_list("status").annotate(count=Count("id")))
     by_priority = dict(
         Referral.objects.filter(created_at__gte=since).values_list("priority").annotate(count=Count("id"))
     )

@@ -10,7 +10,13 @@ class TestPatientRegistration:
     def test_public_registration_creates_a_patient_role_account(self, api_client):
         response = api_client.post(
             reverse("auth-register"),
-            {"username": "newpatient", "email": "p@example.com", "password": "S3cure!Pass", "first_name": "A", "last_name": "B"},
+            {
+                "username": "newpatient",
+                "email": "p@example.com",
+                "password": "S3cure!Pass",
+                "first_name": "A",
+                "last_name": "B",
+            },
         )
         assert response.status_code == 201, response.data
         user = User.objects.get(username="newpatient")
@@ -26,13 +32,17 @@ class TestPatientRegistration:
 
 class TestTokenAuth:
     def test_obtain_token_with_valid_credentials(self, api_client, doctor):
-        response = api_client.post(reverse("token-obtain-pair"), {"username": doctor.user.username, "password": "testpass123"})
+        response = api_client.post(
+            reverse("token-obtain-pair"), {"username": doctor.user.username, "password": "testpass123"}
+        )
         assert response.status_code == 200
         assert "access" in response.data
         assert response.data["user"]["role"] == Role.DOCTOR
 
     def test_obtain_token_with_invalid_credentials_fails(self, api_client, doctor):
-        response = api_client.post(reverse("token-obtain-pair"), {"username": doctor.user.username, "password": "wrong"})
+        response = api_client.post(
+            reverse("token-obtain-pair"), {"username": doctor.user.username, "password": "wrong"}
+        )
         assert response.status_code == 401
 
     def test_protected_endpoint_requires_authentication(self, api_client):

@@ -10,6 +10,7 @@ classes production traffic uses, so this test would fail on a broken
 transition, a broken permission check, or a broken serializer - not just
 one of those in isolation.
 """
+
 import pytest
 from django.urls import reverse
 from django.utils import timezone
@@ -31,7 +32,9 @@ def test_full_referral_lifecycle(doctor_client, coordinator_client, specialist_c
     assert submit_response.status_code == 200
     assert submit_response.data["status"] == ReferralStatus.SUBMITTED
 
-    route_response = coordinator_client.post(reverse("referral-route", args=[referral_id]), {"specialist": specialist.id})
+    route_response = coordinator_client.post(
+        reverse("referral-route", args=[referral_id]), {"specialist": specialist.id}
+    )
     assert route_response.status_code == 200
     assert route_response.data["status"] == ReferralStatus.ROUTED
     assert route_response.data["assigned_specialist"] == specialist.id
@@ -54,7 +57,8 @@ def test_full_referral_lifecycle(doctor_client, coordinator_client, specialist_c
     assert start_response.data["status"] == ReferralStatus.IN_PROGRESS
 
     complete_response = specialist_client.post(
-        reverse("referral-complete", args=[referral_id]), {"outcome_note": "Consultation complete, no further action needed."}
+        reverse("referral-complete", args=[referral_id]),
+        {"outcome_note": "Consultation complete, no further action needed."},
     )
     assert complete_response.status_code == 200
     assert complete_response.data["status"] == ReferralStatus.COMPLETED

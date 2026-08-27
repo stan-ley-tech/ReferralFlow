@@ -17,7 +17,16 @@ class ReferralAssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ReferralAssignment
-        fields = ("id", "specialist", "specialist_name", "status", "assigned_by", "decision_at", "decision_note", "created_at")
+        fields = (
+            "id",
+            "specialist",
+            "specialist_name",
+            "status",
+            "assigned_by",
+            "decision_at",
+            "decision_note",
+            "created_at",
+        )
 
 
 class ClinicalNoteSerializer(serializers.ModelSerializer):

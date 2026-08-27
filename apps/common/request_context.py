@@ -3,6 +3,7 @@ Per-request state shared between middleware, the structured logging filter,
 and the audit service, without threading a request object through every
 function call.
 """
+
 import contextvars
 import uuid
 

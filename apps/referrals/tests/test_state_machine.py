@@ -30,7 +30,9 @@ class TestStateMachine:
         with pytest.raises(InvalidStatusTransitionError):
             assert_valid_transition(ReferralStatus.COMPLETED, ReferralStatus.DRAFT)
 
-    @pytest.mark.parametrize("terminal_status", [ReferralStatus.COMPLETED, ReferralStatus.CANCELLED, ReferralStatus.EXPIRED])
+    @pytest.mark.parametrize(
+        "terminal_status", [ReferralStatus.COMPLETED, ReferralStatus.CANCELLED, ReferralStatus.EXPIRED]
+    )
     def test_terminal_statuses_accept_no_further_transitions(self, terminal_status):
         for candidate in dict(ReferralStatus.CHOICES):
             assert not can_transition(terminal_status, candidate)

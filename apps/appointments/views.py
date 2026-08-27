@@ -22,7 +22,6 @@ class AppointmentViewSet(BaseModelViewSet):
 
     def get_queryset(self):
         visible_referral_ids = referrals_visible_to(self.request.user).values_list("id", flat=True)
-        return (
-            Appointment.objects.filter(referral_id__in=visible_referral_ids)
-            .select_related("referral__patient", "specialist__user")
+        return Appointment.objects.filter(referral_id__in=visible_referral_ids).select_related(
+            "referral__patient", "specialist__user"
         )

@@ -16,9 +16,13 @@ class TestDispatchReferralEvent:
         # rollback-based db fixture unless captured explicitly.
         referral = ReferralService.submit(referral=referral, actor=referral.referring_doctor.user)
         with django_capture_on_commit_callbacks(execute=True):
-            referral = ReferralService.route(referral=referral, specialist=specialist, actor=referral.referring_doctor.user)
+            referral = ReferralService.route(
+                referral=referral, specialist=specialist, actor=referral.referring_doctor.user
+            )
 
-        notifications = Notification.objects.filter(referral=referral, notification_type=NotificationType.REFERRAL_ROUTED)
+        notifications = Notification.objects.filter(
+            referral=referral, notification_type=NotificationType.REFERRAL_ROUTED
+        )
         recipients = set(notifications.values_list("recipient_id", flat=True))
         assert recipients == {specialist.user_id}
 
@@ -28,7 +32,9 @@ class TestDispatchReferralEvent:
 
         dispatch_referral_event(referral, NotificationType.REFERRAL_ACCEPTED)
 
-        notifications = Notification.objects.filter(referral=referral, notification_type=NotificationType.REFERRAL_ACCEPTED)
+        notifications = Notification.objects.filter(
+            referral=referral, notification_type=NotificationType.REFERRAL_ACCEPTED
+        )
         recipients = set(notifications.values_list("recipient_id", flat=True))
         assert recipients == {referral.referring_doctor.user_id, referral.patient.user_id}
 

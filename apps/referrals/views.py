@@ -53,9 +53,7 @@ def referrals_visible_to(user, *, for_detail=False):
     if user.role == "DOCTOR":
         return queryset.filter(referring_doctor__user=user)
     if user.role == "SPECIALIST":
-        return queryset.filter(
-            Q(assigned_specialist__user=user) | Q(assignments__specialist__user=user)
-        ).distinct()
+        return queryset.filter(Q(assigned_specialist__user=user) | Q(assignments__specialist__user=user)).distinct()
     if user.role == "PATIENT":
         return queryset.filter(patient__user=user)
     return queryset.none()
@@ -124,7 +122,9 @@ class ReferralViewSet(BaseModelViewSet):
         """
         referral = self.get_object()
         if request.user.role not in COORDINATION_ROLES and not request.user.is_superuser:
-            raise ReferralPermissionError("Only a referral coordinator or administrator may send a referral externally.")
+            raise ReferralPermissionError(
+                "Only a referral coordinator or administrator may send a referral externally."
+            )
 
         external_hospital_code = request.data.get("external_hospital_code")
         if not external_hospital_code:
@@ -163,7 +163,9 @@ class ReferralViewSet(BaseModelViewSet):
             raise ReferralPermissionError("Only the assigned specialist or a coordinator may schedule this referral.")
         serializer = ScheduleActionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        referral, _appointment = ReferralService.schedule(referral=referral, actor=request.user, **serializer.validated_data)
+        referral, _appointment = ReferralService.schedule(
+            referral=referral, actor=request.user, **serializer.validated_data
+        )
         return Response(ReferralDetailSerializer(referral).data)
 
     @action(detail=True, methods=["post"], url_path="start", url_name="start")
@@ -172,7 +174,9 @@ class ReferralViewSet(BaseModelViewSet):
         self._require_assigned_specialist(request, referral)
         serializer = NoteActionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        referral = ReferralService.start_consultation(referral=referral, actor=request.user, **serializer.validated_data)
+        referral = ReferralService.start_consultation(
+            referral=referral, actor=request.user, **serializer.validated_data
+        )
         return Response(ReferralDetailSerializer(referral).data)
 
     @action(detail=True, methods=["post"])
@@ -235,9 +239,7 @@ class ReferralViewSet(BaseModelViewSet):
         user = request.user
         if user.is_superuser or user.role in COORDINATION_ROLES:
             return
-        is_assigned = (
-            referral.assigned_specialist is not None and referral.assigned_specialist.user_id == user.id
-        )
+        is_assigned = referral.assigned_specialist is not None and referral.assigned_specialist.user_id == user.id
         if not is_assigned:
             raise ReferralPermissionError("Only the specialist currently assigned to this referral may do that.")
 
