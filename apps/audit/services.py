@@ -5,14 +5,21 @@ from apps.common import request_context
 
 logger = logging.getLogger("referralflow.audit")
 
+_UNSET = object()
 
-def log_action(action, target=None, actor_id=None, metadata=None):
+
+def log_action(action, target=None, actor_id=_UNSET, metadata=None):
     """
-    Records an audit entry. `actor_id` defaults to the user attached to the
-    current request context so callers deep in the service layer don't need
-    to thread the request through every function signature.
+    Records an audit entry. When `actor_id` is omitted entirely, it defaults
+    to the user attached to the current request context so callers deep in
+    the service layer don't need to thread the request through every
+    function signature. Passing `actor_id=None` explicitly - as a
+    Celery-triggered system action like referral expiry does - means "no
+    actor", not "look one up"; conflating the two would let a stale
+    request-context value leak into audit entries for actions nothing
+    authenticated actually performed.
     """
-    resolved_actor_id = actor_id if actor_id is not None else request_context.get_current_user_id()
+    resolved_actor_id = request_context.get_current_user_id() if actor_id is _UNSET else actor_id
 
     entry = AuditLog.objects.create(
         actor_id=resolved_actor_id,

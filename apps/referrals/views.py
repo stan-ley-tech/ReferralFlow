@@ -77,6 +77,16 @@ class ReferralViewSet(BaseModelViewSet):
             return ReferralListSerializer
         return ReferralDetailSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        # ReferralCreateSerializer only exposes the input fields; the client
+        # needs the generated reference_code and starting status back too.
+        detail = ReferralDetailSerializer(serializer.instance)
+        headers = self.get_success_headers(detail.data)
+        return Response(detail.data, status=201, headers=headers)
+
     def perform_create(self, serializer):
         user = self.request.user
         referring_doctor = serializer.validated_data["referring_doctor"]
@@ -156,7 +166,7 @@ class ReferralViewSet(BaseModelViewSet):
         referral, _appointment = ReferralService.schedule(referral=referral, actor=request.user, **serializer.validated_data)
         return Response(ReferralDetailSerializer(referral).data)
 
-    @action(detail=True, methods=["post"], url_path="start")
+    @action(detail=True, methods=["post"], url_path="start", url_name="start")
     def start_consultation(self, request, pk=None):
         referral = self.get_object()
         self._require_assigned_specialist(request, referral)
